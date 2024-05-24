@@ -22,6 +22,7 @@ using System.Text;
 using UnityEngine;
 using System.Reflection;
 using KSP.UI.Screens;
+using UnityEngine.Profiling;
 //using ToolbarWrapper;
 
 namespace AtmosphereAutopilot
@@ -172,15 +173,21 @@ namespace AtmosphereAutopilot
 
         void serialize_active_modules()
         {
+            AutoSerialization.Serialize(this, "AtmosphereAutopilot", KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
+                typeof(GlobalSerializable));
+
             if (ActiveVessel == null)
                 return;
+            
             foreach (var module in autopilot_module_lists[ActiveVessel].Values)
                 module.Serialize();
+
             hotkeyManager.Serialize();
         }
 
         void OnDestroy()
         {
+            //This seems to not be called reliably on shutdown, it's best to do serialization etc in sceneSwitch as well
             serialize_active_modules();
             AtmosphereAutopilot.Instance.BackgroundThread.Stop();
         }
@@ -191,7 +198,7 @@ namespace AtmosphereAutopilot
             clean_modules();
             if (scenes != GameScenes.FLIGHT)
             {
-                mainMenuClose ();
+                mainMenuClose();
                 ActiveVessel = null;
                 AtmosphereAutopilot.Instance.BackgroundThread.Pause();
             }
@@ -256,9 +263,21 @@ namespace AtmosphereAutopilot
 
 
         #region AppLauncherSection
-
+        
         [GlobalSerializable("use_neo_gui")]
         public bool use_neo_gui = false;
+
+        [GlobalSerializable("compact_gui")]
+        public bool compact_gui = false;
+        
+        [GlobalSerializable("master_switch_key_toggles_gui")]
+        public bool master_switch_key_toggles_gui = true;
+        
+        [GlobalSerializable("scroll_wheel_number_field_increment_vertical")]
+        public float scroll_wheel_number_field_increment_vertical = 0.5f;
+
+        [GlobalSerializable("scroll_wheel_number_field_increment_horizontal")]
+        public float scroll_wheel_number_field_increment_horizontal = 0.1f;
 
         ApplicationLauncherButton launcher_btn;
 
@@ -288,7 +307,7 @@ namespace AtmosphereAutopilot
         // Called when applauncher is ready for population
         void onAppLauncherLoad()
         {
-            // deserialize use_neo_gui flag
+            // deserialize gui flags
             AutoSerialization.Deserialize(this, "AtmosphereAutopilot",
                 KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
                 typeof(GlobalSerializable), null);

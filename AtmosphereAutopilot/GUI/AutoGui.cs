@@ -231,6 +231,22 @@ namespace AtmosphereAutopilot
                 draw_element(field, obj);
         }
 
+        public static void HandleToggleButton(bool currentToggleValue, string label, GUIStyle style, Action<bool> onLeftClick, Action<bool> onRightClick) {
+            bool newToggleValue = GUILayout.Toggle(currentToggleValue, label, style);
+            if (newToggleValue != currentToggleValue) {
+                if (Event.current.button == 1 /* RMB */) onRightClick(newToggleValue);
+                else onLeftClick(newToggleValue);
+            }
+        }
+        
+        public static float GetNumberTextBoxScrollWheelChange() {
+            if (Event.current.type == EventType.ScrollWheel && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                return (Event.current.delta.y / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical) +
+                       (Event.current.delta.x / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal); //Unity seems to not support horizontal scroll wheel :(
+            }
+            return 0;
+        }
+
 
         #region FieldPropertyUniversal
 

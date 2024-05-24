@@ -1,6 +1,10 @@
 AtmosphereAutopilot
 {
 	use_neo_gui = false
+	compact_gui = false
+	master_switch_key_toggles_gui = true
+	scroll_wheel_number_field_increment_vertical = 0.5
+	scroll_wheel_number_field_increment_horizontal = 0.1
 }
 Cruise_Flight
 {

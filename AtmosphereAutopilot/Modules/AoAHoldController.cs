@@ -82,7 +82,7 @@ namespace AtmosphereAutopilot
         }
 
         // degrees
-        public DelayedFieldFloat desired_aoa = new DelayedFieldFloat(0.0f, "G4");
+        public DelayedFieldFloat desired_aoa = new DelayedFieldFloat(0.0f, "G2");
 
         [GlobalSerializable("use_keys")]
         [AutoGuiAttr("use keys", true)]

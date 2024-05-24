@@ -40,13 +40,25 @@ namespace AtmosphereAutopilot
 
         protected Vessel vessel = null;
         protected bool enabled = false;
-        protected string module_name;
+        protected string module_name, module_compact_name;
+
+        protected static readonly Dictionary<string, string> compact_name_map = new Dictionary<string, string> {
+            //{ "Mouse Director", "MD" }, //I'm a keyboard pleb, so I exclude this from the compact UI by commenting it out here
+            { "Cruise Flight controller", "CF" },
+            { "AoA-hold controller", "AoA" },
+            { "Standard Fly-By-Wire", "FBW" },
+        };
 
         protected AutopilotModule(Vessel v, int wnd_id, string module_name):
             base(module_name, wnd_id, new Rect(50.0f, 80.0f, 200.0f, 50.0f))
         {
             vessel = v;
             this.module_name = module_name;
+            try {
+                this.module_compact_name = compact_name_map[this.module_name];
+            } catch (KeyNotFoundException) {
+                this.module_compact_name = "";
+            }
         }
 
         /// <summary>
@@ -62,8 +74,9 @@ namespace AtmosphereAutopilot
                 OnActivate();
             enabled = true;
         }
-
+        
         public string ModuleName { get { return module_name; } }
+        public string ModuleCompactName { get { return module_compact_name; } }
 
         protected abstract void OnActivate();
 
