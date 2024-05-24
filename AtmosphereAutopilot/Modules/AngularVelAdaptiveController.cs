@@ -41,7 +41,6 @@ namespace AtmosphereAutopilot
         /// <param name="module_name">Name of controller</param>
         /// <param name="wnd_id">unique for types window id</param>
         /// <param name="axis">Pitch = 0, roll = 1, yaw = 2</param>
-        /// <param name="model">Flight model instance for adaptive control</param>
         protected AngularVelAdaptiveController(Vessel vessel, string module_name,
             int wnd_id, int axis)
             : base(vessel, wnd_id, module_name)
@@ -97,6 +96,8 @@ namespace AtmosphereAutopilot
         /// Main control function
         /// </summary>
         /// <param name="cntrl">Control state to change</param>
+        /// <param name="target_value"></param>
+        /// <param name="target_acc"></param>
         public float ApplyControl(FlightCtrlState cntrl, float target_value, float target_acc = 0.0f)
         {
             vel = imodel.AngularVel(axis);                  // get angular velocity
