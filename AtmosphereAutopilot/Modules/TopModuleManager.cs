@@ -172,7 +172,7 @@ namespace AtmosphereAutopilot
                                 }, (bool toggledOn) => { controller.ToggleGUI(); });
                         }
                     }
-                
+                    
                     GUILayout.Space(10);
 
                     if (sfbw != null) {
