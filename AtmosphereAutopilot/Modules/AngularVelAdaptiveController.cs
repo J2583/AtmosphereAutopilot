@@ -154,12 +154,12 @@ namespace AtmosphereAutopilot
         public bool ignore_max_v = false, ignore_max_g = false;
 
         [VesselSerializable("max_v_construction")]
-        [AutoGuiAttr("Max v construction", true, "G6")]
-        public float max_v_construction = 0.7f;
+        [AutoGuiAttr("Max v construction", true, "G4")]
+        public float max_v_construction = 40.0f * dgr2rad; //About 0.7 rad/sec
         public string max_v_construction_as_text
         {
-            set => this.max_v_construction = float.TryParse(value, out float v) ? v : this.max_v_construction;
-            get => this.max_v_construction.ToString("G6");
+            set => this.max_v_construction = float.TryParse(value, out float v) ? Math.Max(v * dgr2rad, 0) : this.max_v_construction;
+            get => (this.max_v_construction * rad2dgr).ToString("G4");
         }
 
         protected virtual float process_desired_v(float des_v, bool user_input) { return des_v; }
@@ -632,7 +632,7 @@ namespace AtmosphereAutopilot
         public float max_aoa = 15.0f;
         public string max_aoa_as_text
         {
-            set => this.max_aoa = float.TryParse(value, out float v) ? v : this.max_aoa;
+            set => this.max_aoa = float.TryParse(value, out float v) ? Math.Max(v, 0) : this.max_aoa;
             get => this.max_aoa.ToString("G6");
         }
 
@@ -665,7 +665,7 @@ namespace AtmosphereAutopilot
         internal RollAngularVelocityController(Vessel vessel)
             : base(vessel, "Roll ang vel controller", 1234445, ROLL)
         {
-            max_v_construction = 3.0f;
+            max_v_construction = 180.0f * dgr2rad; //Previously 3.0 rad/sec, about 172 deg/sec
         }
 
         public override void InitializeDependencies(Dictionary<Type, AutopilotModule> modules)

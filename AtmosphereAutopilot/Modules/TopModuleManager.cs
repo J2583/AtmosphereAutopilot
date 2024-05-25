@@ -229,12 +229,12 @@ namespace AtmosphereAutopilot
                         GUILayout.Label("Pitch\nRate", pvc.ignore_max_v ? GUIStyles.microLabelStyleLeftRed : GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         if (AutoGUI.CheckForRightClick()) pvc.ignore_max_v = pvc.ignore_max_g = !pvc.ignore_max_v;
                         pvc.max_v_construction_as_text = GUILayout.TextField(pvc.max_v_construction_as_text, GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
-                        pvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange();
+                        pvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange() * dgr2rad;
                         GUILayout.Space(1);
                         GUILayout.Label("Roll\nRate", rvc.ignore_max_v ? GUIStyles.microLabelStyleLeftRed : GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         if (AutoGUI.CheckForRightClick()) rvc.ignore_max_v = rvc.ignore_max_g = !rvc.ignore_max_v;
                         rvc.max_v_construction_as_text = GUILayout.TextField(rvc.max_v_construction_as_text, GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
-                        rvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange();
+                        rvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange() * dgr2rad;
                         GUILayout.Space(1);
                         GUILayout.Label("AoA", pvc.moderate_aoa ? GUIStyles.microLabelStyleLeft : GUIStyles.microLabelStyleLeftRed, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         if (AutoGUI.CheckForRightClick()) pvc.moderate_aoa = !pvc.moderate_aoa;

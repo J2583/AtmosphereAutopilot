@@ -225,8 +225,8 @@ namespace AtmosphereAutopilot
             for (int i = 0; i < 3; i++)
             {
                 GUILayout.Label("=======" + axis_names[i] + "=======");
-                GUILayout.Label("ang vel = " + angular_v_buf[i].getLast().ToString("G8"), GUIStyles.labelStyleLeft);
-                GUILayout.Label("ang acc = " + angular_acc_buf[i].getLast().ToString("G8"), GUIStyles.labelStyleLeft);
+                GUILayout.Label("ang vel = " + (angular_v_buf[i].getLast() * rad2dgr).ToString("G8"), GUIStyles.labelStyleLeft);
+                GUILayout.Label("ang acc = " + (angular_acc_buf[i].getLast() * rad2dgr).ToString("G8"), GUIStyles.labelStyleLeft);
                 GUILayout.Label("AoA = " + (aoa_buf[i].getLast() * rad2degree).ToString("G8"), GUIStyles.labelStyleLeft);
             }
             AutoGUI.AutoDrawObject(this);
