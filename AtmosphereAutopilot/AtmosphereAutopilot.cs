@@ -510,12 +510,14 @@ namespace AtmosphereAutopilot
                 GUIStyles.Init();
                 styles_init = true;
             }
+
             if (ActiveVessel == null)
                 return;
             if (!autopilot_module_lists.ContainsKey(ActiveVessel))
                 return;
             if (!HighLogic.LoadedSceneIsFlight)
                 return;            
+
             GUIStyles.set_colors();
             applauncher.OnGUI();
             foreach (var pair in autopilot_module_lists[ActiveVessel])
@@ -551,6 +553,8 @@ namespace AtmosphereAutopilot
                     if (module.Active || module is TopModuleManager)
                         module.OnUpdate();
             }
+
+            //if (Input.GetKeyDown(KeyCode.Escape)) GUI.FocusControl(null); //Doesn't work because focused text fields block all input, and there seems to be no way around that with immediate-mode GUI other than using Input.eatKeyPressOnTextFieldFocus, which would probably cause all text-field input to also be sent tothe main game
         }
     }
 }

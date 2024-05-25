@@ -55,6 +55,8 @@ namespace AtmosphereAutopilot
 
         private float initialLevelerSnapAngle = 3.0f;
 
+        private static readonly float[] aoaHoldPresets = new float[] { 0, 1.0f, 2.5f, 5.0f, 15.0f, 25.0f, 40.0f };
+
         public void create_context()
         {
             // We need to create all those modules. Module type needs to define constructor of
@@ -175,7 +177,12 @@ namespace AtmosphereAutopilot
 
                     if (sfbw != null) {
                         AutoGUI.HandleToggleButton(sfbw.Coord_turn, "CT", GUIStyles.compactToggleButtonStyle,
-                            (bool toggledOn) => { sfbw.Coord_turn = toggledOn; }, (bool toggledOn) => { cur_ves_modules?[typeof(FlightModel)]?.ToggleGUI(); });
+                            (bool toggledOn) => { sfbw.Coord_turn = toggledOn; },
+                            (bool toggledOn) => {
+                                if (Input.GetKey(KeyCode.LeftAlt)) yvc.moderate_aoa = !yvc.moderate_aoa; //Toggle sideslip moderation
+                                else cur_ves_modules?[typeof(FlightModel)]?.ToggleGUI();
+                            });
+                        if (!yvc.moderate_aoa && Event.current.type == EventType.Repaint) GUI.Label(GUILayoutUtility.GetLastRect(), "SS", GUIStyles.nanoLabelStyleRightRed);
                     }
                     if (rvc != null) {
                         AutoGUI.HandleToggleButton(rvc.wing_leveler, "Lvl", GUIStyles.compactToggleButtonStyle,
@@ -187,18 +194,26 @@ namespace AtmosphereAutopilot
                                     rvc.leveler_snap_angle = AtmosphereAutopilot.Instance.secondary_wing_level_snap_angle;
                                 }
                             });
+                        if (Event.current.type == EventType.Repaint) GUI.Label(GUILayoutUtility.GetLastRect(), rvc.leveler_snap_angle.ToString(), rvc.snapping_to_level ? GUIStyles.nanoLabelStyleRightGreen : GUIStyles.nanoLabelStyleRight);
                     }
-                
+                    
                     GUILayout.EndHorizontal();
-                
+                    
                     GUILayout.Space(4);
 
                     GUILayout.BeginHorizontal();
                 
                     if (aoahc != null) {
                         GUILayout.Label("AoA:", GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        AutoGUI.CheckForClick(() => {
+                            aoahc.desired_aoa.Value = Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                        }, () => { aoahc.desired_aoa.Value = 0; });
                         aoahc.desired_aoa.DisplayLayout(GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
                         aoahc.desired_aoa.Value -= AutoGUI.GetNumberTextBoxScrollWheelChange();
+                        /*if (AutoGUI.CheckForRightClick()) { //See "//Doesn't work because focused text fields block all input" :(
+                            aoahc.desired_aoa.Value = Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                            GUI.FocusControl(null);
+                        }*/
                         GUILayout.Space(3);
 
                         bool limitsDisabled = pvc.ignore_max_v || pvc.ignore_max_g ||
@@ -334,6 +349,31 @@ namespace AtmosphereAutopilot
                     }
                     AtmosphereAutopilot.Instance.mainMenuGUIUpdate();
                 }
+        }
+        
+        private float GetPreviousPreset(float[] presets, float currentValue) {
+            for (int i = presets.Length - 1; i >= 0; i--) {
+                if (presets[i] < currentValue) return presets[i];
+            }
+            return presets[presets.Length - 1];
+        }
+
+        private float GetNextPreset(float[] presets, float currentValue) {
+            foreach (float preset in presets) {
+                if (preset > currentValue) return preset;
+            }
+            return presets[0];
+        }
+
+        public override void Serialize()
+        {
+            base.Serialize();
+            settings_wnd.Serialize();
+        }
+
+        public override bool Deserialize()
+        {
+            return base.Deserialize() && settings_wnd.Deserialize();
         }
 
         #region SettingsWindow
@@ -606,17 +646,6 @@ namespace AtmosphereAutopilot
         }
 
         #endregion SettingsWindow
-
-        public override void Serialize()
-        {
-            base.Serialize();
-            settings_wnd.Serialize();
-        }
-
-        public override bool Deserialize()
-        {
-            return base.Deserialize() && settings_wnd.Deserialize();
-        }
 
     }
 }

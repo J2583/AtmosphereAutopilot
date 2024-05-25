@@ -693,6 +693,7 @@ namespace AtmosphereAutopilot
 
         [AutoGuiAttr("Snap angle", true, "G4")]
         public float leveler_snap_angle = 3.0f;
+        public bool snapping_to_level = false;
 
         [AutoGuiAttr("angle_btw_hor", false, "G5")]
         float angle_btw_hor;
@@ -765,6 +766,8 @@ namespace AtmosphereAutopilot
                     angle_btw_hor_sin = -Vector3.Dot(roll_vector, vessel.ReferenceTransform.up);
                     if (Math.Abs(angle_btw_hor_sin) <= Math.Sin(leveler_snap_angle * dgr2rad))
                     {
+                        snapping_to_level = true;
+
                         angle_btw_hor = Mathf.Asin(angle_btw_hor_sin);
                         float dt = TimeWarp.fixedDeltaTime;
 
@@ -785,7 +788,7 @@ namespace AtmosphereAutopilot
                             if (Math.Abs(snapping_vel) > Math.Abs(angle_btw_hor) / dt)
                                 snapping_vel = angle_btw_hor / dt;
                         }
-                    }
+                    } else snapping_to_level = false;
                 }
             }
 

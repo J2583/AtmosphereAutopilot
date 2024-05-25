@@ -263,6 +263,14 @@ namespace AtmosphereAutopilot
         public static bool CheckForRightClick() {
             return Event.current.type == EventType.MouseDown && Event.current.button == 1 && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
         }
+        
+        //See GetNumberTextBoxScrollWheelChange for a potential bug with this
+        public static void CheckForClick(Callback onLeftClick, Callback onRightClick) {
+            if (Event.current.type == EventType.MouseDown && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                if (Event.current.button == 0) onLeftClick();
+                else if (Event.current.button == 1) onRightClick();
+            }
+        }
 
 
         #region FieldPropertyUniversal
