@@ -30,7 +30,9 @@ namespace AtmosphereAutopilot
         public static GUIStyle labelStyleCenter { get; private set; }
         public static GUIStyle labelStyleRight { get; private set; }
         public static GUIStyle smallLabelStyleLeft { get; private set; }
+        public static GUIStyle smallLabelStyleLeftRed { get; private set; }
         public static GUIStyle microLabelStyleLeft { get; private set; }
+        public static GUIStyle microLabelStyleLeftRed { get; private set; }
         public static GUIStyle textBoxStyle { get; private set; }
         public static GUIStyle largeTextBoxStyle { get; private set; }
         public static GUIStyle toggleButtonStyle { get; private set; }
@@ -69,10 +71,16 @@ namespace AtmosphereAutopilot
             smallLabelStyleLeft.padding = new RectOffset(1, 1, 1, 1);
             smallLabelStyleLeft.stretchHeight = true;
             smallLabelStyleLeft.stretchWidth = false;
+            
+            smallLabelStyleLeftRed = new GUIStyle(smallLabelStyleLeft);
+            smallLabelStyleLeftRed.normal.textColor = Color.red;
 
             microLabelStyleLeft = new GUIStyle(smallLabelStyleLeft);
             microLabelStyleLeft.fontSize = 7;
             microLabelStyleLeft.fontStyle = FontStyle.Normal;
+            
+            microLabelStyleLeftRed = new GUIStyle(microLabelStyleLeft);
+            microLabelStyleLeftRed.normal.textColor = Color.red;
 
             hoverLabel = new GUIStyle(skin.label);
             hoverLabel.alignment = TextAnchor.MiddleCenter;

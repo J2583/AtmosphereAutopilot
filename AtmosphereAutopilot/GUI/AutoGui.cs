@@ -239,12 +239,18 @@ namespace AtmosphereAutopilot
             }
         }
         
+        //GUILayoutUtility.GetLastRect is supposed to only work properly in repaint events, so we might just be getting lucky here, or the engine's changed but documentation hasn't
         public static float GetNumberTextBoxScrollWheelChange() {
             if (Event.current.type == EventType.ScrollWheel && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
                 return (Event.current.delta.y / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical) +
                        (Event.current.delta.x / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal); //Unity seems to not support horizontal scroll wheel :(
             }
             return 0;
+        }
+        
+        //See GetNumberTextBoxScrollWheelChange for a potential bug with this
+        public static bool CheckForRightClick() {
+            return Event.current.type == EventType.MouseDown && Event.current.button == 1 && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
         }
 
 

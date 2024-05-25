@@ -273,11 +273,15 @@ namespace AtmosphereAutopilot
         [GlobalSerializable("master_switch_key_toggles_gui")]
         public bool master_switch_key_toggles_gui = true;
         
+        [GlobalSerializable("secondary_wing_level_snap_angle")]
+        public float secondary_wing_level_snap_angle = 45.0f;
+
         [GlobalSerializable("scroll_wheel_number_field_increment_vertical")]
         public float scroll_wheel_number_field_increment_vertical = 0.5f;
 
         [GlobalSerializable("scroll_wheel_number_field_increment_horizontal")]
         public float scroll_wheel_number_field_increment_horizontal = 0.1f;
+
 
         ApplicationLauncherButton launcher_btn;
 

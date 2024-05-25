@@ -51,6 +51,9 @@ namespace AtmosphereAutopilot
         
         private PitchAngularVelocityController pvc = null;
         private RollAngularVelocityController rvc = null;
+        private YawAngularVelocityController yvc = null;
+
+        private float initialLevelerSnapAngle = 3.0f;
 
         public void create_context()
         {
@@ -85,6 +88,7 @@ namespace AtmosphereAutopilot
             else {
                 pvc = cur_ves_modules[typeof(PitchAngularVelocityController)] as PitchAngularVelocityController;
                 rvc = cur_ves_modules[typeof(RollAngularVelocityController)] as RollAngularVelocityController;
+                yvc = cur_ves_modules[typeof(YawAngularVelocityController)] as YawAngularVelocityController;
                 aoahc = HighLevelControllers[typeof(AoAHoldController)] as AoAHoldController;
                 sfbw = HighLevelControllers[typeof(StandardFlyByWire)] as StandardFlyByWire;
                 active_controller = sfbw;
@@ -92,6 +96,8 @@ namespace AtmosphereAutopilot
 
             // map settings window to modules
             settings_wnd.map_modues();
+
+            initialLevelerSnapAngle = rvc.leveler_snap_angle == AtmosphereAutopilot.Instance.secondary_wing_level_snap_angle ? 3.0f : rvc.leveler_snap_angle; //todo - we could instead store both of these per-vessel-design, currently neither are
         }
 
         protected override void OnActivate()
@@ -148,14 +154,7 @@ namespace AtmosphereAutopilot
 
                 AutoGUI.HandleToggleButton(Active, "MS", GUIStyles.compactToggleButtonStyle,
                     (bool toggledOn) => { Active = toggledOn; }, (bool toggledOn) => { settings_wnd.ToggleGUI(); });
-                #if false
-                bool activate = GUILayout.Toggle(Active, "MS", GUIStyles.compactToggleButtonStyle);
-                if (Active != activate) {
-                    if (Event.current.button == 1 /* RMB */) settings_wnd.ToggleGUI();
-                    else Active = activate;
-                }
-                #endif
-
+                
                 if (fullyInitialized) {
                     GUILayout.Space(10);
 
@@ -170,16 +169,6 @@ namespace AtmosphereAutopilot
                                         else controller.ShowGUI();
                                     }
                                 }, (bool toggledOn) => { controller.ToggleGUI(); });
-
-                            #if false
-                            if (GUILayout.Toggle(controllerWasActive, controller.ModuleCompactName, GUIStyles.compactToggleButtonStyle) != controllerWasActive) {
-                                OnModuleButtonActive(controller);
-                                if (controller.ModuleCompactName == "CF") { //Kinda need the whole thing for cruise-flight mode
-                                    if (controllerWasActive) controller.ToggleGUI();
-                                    else controller.ShowGUI();
-                                }
-                            }
-                            #endif
                         }
                     }
                 
@@ -191,8 +180,14 @@ namespace AtmosphereAutopilot
                     }
                     if (rvc != null) {
                         AutoGUI.HandleToggleButton(rvc.wing_leveler, "Lvl", GUIStyles.compactToggleButtonStyle,
-                            (bool toggledOn) => { rvc.wing_leveler = toggledOn; }, (bool toggledOn) => { /* //todo - have this enable a mode like cruise-flight's Level button until the next user input */ });
-                        //rvc.wing_leveler = GUILayout.Toggle(rvc.wing_leveler, "Lvl", GUIStyles.compactToggleButtonStyle);
+                            (bool toggledOn) => { rvc.wing_leveler = toggledOn; },
+                            (bool toggledOn) => {
+                                if (rvc.leveler_snap_angle == AtmosphereAutopilot.Instance.secondary_wing_level_snap_angle) rvc.leveler_snap_angle = initialLevelerSnapAngle;
+                                else {
+                                    initialLevelerSnapAngle = rvc.leveler_snap_angle;
+                                    rvc.leveler_snap_angle = AtmosphereAutopilot.Instance.secondary_wing_level_snap_angle;
+                                }
+                            });
                     }
                 
                     GUILayout.EndHorizontal();
@@ -207,17 +202,28 @@ namespace AtmosphereAutopilot
                         aoahc.desired_aoa.Value -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                         GUILayout.Space(3);
 
-                        GUILayout.Label("Lims:", GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        bool limitsDisabled = pvc.ignore_max_v || pvc.ignore_max_g ||
+                                              rvc.ignore_max_v || rvc.ignore_max_g ||
+                                              yvc.ignore_max_g ||
+                                              !pvc.moderate_aoa;
+                        GUILayout.Label("Lims:", limitsDisabled ? GUIStyles.smallLabelStyleLeftRed : GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        if (AutoGUI.CheckForRightClick()) {
+                            pvc.ignore_max_v = pvc.ignore_max_g = rvc.ignore_max_v = rvc.ignore_max_g = yvc.ignore_max_g = !limitsDisabled;
+                            pvc.moderate_aoa = limitsDisabled;
+                        }
                         GUILayout.Space(2);
-                        GUILayout.Label("Pitch\nRate", GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        GUILayout.Label("Pitch\nRate", pvc.ignore_max_v ? GUIStyles.microLabelStyleLeftRed : GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        if (AutoGUI.CheckForRightClick()) pvc.ignore_max_v = pvc.ignore_max_g = !pvc.ignore_max_v;
                         pvc.max_v_construction_as_text = GUILayout.TextField(pvc.max_v_construction_as_text, GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
                         pvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                         GUILayout.Space(1);
-                        GUILayout.Label("Roll\nRate", GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        GUILayout.Label("Roll\nRate", rvc.ignore_max_v ? GUIStyles.microLabelStyleLeftRed : GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        if (AutoGUI.CheckForRightClick()) rvc.ignore_max_v = rvc.ignore_max_g = !rvc.ignore_max_v;
                         rvc.max_v_construction_as_text = GUILayout.TextField(rvc.max_v_construction_as_text, GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
                         rvc.max_v_construction -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                         GUILayout.Space(1);
-                        GUILayout.Label("AoA", GUIStyles.microLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        GUILayout.Label("AoA", pvc.moderate_aoa ? GUIStyles.microLabelStyleLeft : GUIStyles.microLabelStyleLeftRed, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+                        if (AutoGUI.CheckForRightClick()) pvc.moderate_aoa = !pvc.moderate_aoa;
                         pvc.max_aoa_as_text = GUILayout.TextField(pvc.max_aoa_as_text, GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
                         pvc.max_aoa -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                     }
