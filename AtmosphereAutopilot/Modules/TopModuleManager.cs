@@ -133,14 +133,13 @@ namespace AtmosphereAutopilot
 
         protected override void _drawGUI(int id)
         {
-            if (GUI.Button(new Rect(1.0f, 1.0f, 15.0f, 16.0f),//window.width - 16.0f - 15.0f - 2.0f, 1.0f, 15.0f, 16.0f),
+            if (GUI.Button(new Rect(1.0f, 1.0f, WINDOW_TITLE_BAR_HEIGHT - 2.0f, WINDOW_TITLE_BAR_HEIGHT - 1.0f),//windowPosition.width - 16.0f - 15.0f - 2.0f, 1.0f, 15.0f, 16.0f),
                 AtmosphereAutopilot.Instance.compact_gui ? "f" : "c", GUIStyles.toggleButtonStyle))
             {
                 AtmosphereAutopilot.Instance.compact_gui = !AtmosphereAutopilot.Instance.compact_gui;
-                window.height = 0;
-                window.width = 200;
+                windowPosition.height = 0;
+                windowPosition.width = 200;
             }
-            close_button();
 
             GUILayout.BeginVertical();
             if (AtmosphereAutopilot.Instance.compact_gui) {
@@ -256,8 +255,6 @@ namespace AtmosphereAutopilot
                 }
             }
             GUILayout.EndVertical();
-
-            GUI.DragWindow();
         }
 
         protected override void OnGUICustom()
@@ -369,8 +366,6 @@ namespace AtmosphereAutopilot
 
             protected override void _drawGUI(int id)
             {
-                close_button();
-
                 GUILayout.BeginVertical();
 
                 // Moderation sections
@@ -463,24 +458,23 @@ namespace AtmosphereAutopilot
                     {
                         // let's delete this profile
                         profiles.Remove(s);
-                        window.height = 0.0f;       // compact window
+                        windowPosition.height = 0.0f;       // compact window
                         Serialize();
                     }
                     GUILayout.EndHorizontal();
                 }
 
                 GUILayout.EndVertical();
-                GUI.DragWindow();
             }
 
             [GlobalSerializable("window_x")]
-            protected float WindowLeft { get { return window.xMin; } set { window.xMin = value; } }
+            protected float WindowLeft { get { return windowPosition.xMin; } set { windowPosition.xMin = value; } }
 
             [GlobalSerializable("window_y")]
-            protected float WindowTop { get { return window.yMin; } set { window.yMin = value; } }
+            protected float WindowTop { get { return windowPosition.yMin; } set { windowPosition.yMin = value; } }
 
             [GlobalSerializable("window_width")]
-            protected float WindowWidth { get { return window.width; } set { window.width = value; } }
+            protected float WindowWidth { get { return windowPosition.width; } set { windowPosition.width = value; } }
 
             string profile_name = "";
 

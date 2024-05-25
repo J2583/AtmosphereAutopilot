@@ -169,36 +169,34 @@ namespace AtmosphereAutopilot
         #region GUI
 
         [GlobalSerializable("window_x")]
-        protected float WindowLeft { get { return window.xMin; } 
+        protected float WindowLeft { get { return windowPosition.xMin; } 
             set 
             {
-                float width = window.width;
-                window.xMin = value;
-                window.xMax = window.xMin + width;
+                float width = windowPosition.width;
+                windowPosition.xMin = value;
+                windowPosition.xMax = windowPosition.xMin + width;
             } 
         }
 
         [GlobalSerializable("window_y")]
-        protected float WindowTop { get { return window.yMin; } 
+        protected float WindowTop { get { return windowPosition.yMin; } 
             set 
             {
-                float height = window.height;
-                window.yMin = value;
-                window.yMax = window.yMin + height;
+                float height = windowPosition.height;
+                windowPosition.yMin = value;
+                windowPosition.yMax = windowPosition.yMin + height;
             } 
         }
 
         //[GlobalSerializable("window_width")]
-        protected float WindowWidth { get { return window.width; } set { window.width = value; } }
+        protected float WindowWidth { get { return windowPosition.width; } set { windowPosition.width = value; } }
 
         /// <inheritdoc />
         protected override void _drawGUI(int id)
         {
-            close_button();
             GUILayout.BeginVertical();
             AutoGUI.AutoDrawObject(this);
             GUILayout.EndVertical();
-            GUI.DragWindow();
         }
 
         #endregion

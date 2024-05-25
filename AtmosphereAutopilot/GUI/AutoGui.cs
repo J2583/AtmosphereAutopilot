@@ -93,19 +93,23 @@ namespace AtmosphereAutopilot
         string wndname;
         int wnd_id;
         bool gui_shown = false;
-        protected Rect window;
+        protected Rect windowPosition;
+
+        protected bool hasCloseButton = true, draggable = true;
+
+        public const float WINDOW_TITLE_BAR_HEIGHT = 17.0f; //For the close button and window dragging
 
         /// <summary>
         /// Create window instance.
         /// </summary>
         /// <param name="wndname">Window header</param>
         /// <param name="wnd_id">Unique for Unity engine id</param>
-        /// <param name="window">Initial window position rectangle</param>
-        internal GUIWindow(string wndname, int wnd_id, Rect window)
+        /// <param name="windowPosition">Initial window position rectangle</param>
+        internal GUIWindow(string wndname, int wnd_id, Rect windowPosition)
         {
             this.wndname = wndname;
             this.wnd_id = wnd_id;
-            this.window = window;
+            this.windowPosition = windowPosition;
         }
 
         /// <summary>
@@ -127,10 +131,14 @@ namespace AtmosphereAutopilot
                 return;
             
             // forbid windows not on screen
-            window.xMin = Common.Clampf(window.xMin, 5.0f - window.width, Screen.width - 5.0f);
-            window.yMin = Common.Clampf(window.yMin, 5.0f - window.height, Screen.height - 5.0f);
+            windowPosition.xMin = Common.Clampf(windowPosition.xMin, 5.0f - windowPosition.width, Screen.width - 5.0f);
+            windowPosition.yMin = Common.Clampf(windowPosition.yMin, 5.0f - windowPosition.height, Screen.height - 5.0f);
 
-            window = GUILayout.Window(wnd_id, window, _drawGUI, wndname);
+            windowPosition = GUILayout.Window(wnd_id, windowPosition, (int windowId) => {
+                if (hasCloseButton) close_button();
+                _drawGUI(windowId);
+                if (draggable && Event.current.button == 0 /* LMB */) GUI.DragWindow(new Rect(0, 0, 9000000.0f, WINDOW_TITLE_BAR_HEIGHT));
+            }, wndname);
             OnGUICustom();
         }
 
@@ -139,7 +147,8 @@ namespace AtmosphereAutopilot
         /// </summary>
         protected void close_button()
         {
-            Rect close_btn_rect = new Rect(window.width - 16.0f, 1.0f, 15.0f, 16.0f);
+            const float BUTTON_SIZE = WINDOW_TITLE_BAR_HEIGHT - 1.0f;
+            Rect close_btn_rect = new Rect(windowPosition.width - BUTTON_SIZE, 1.0f, BUTTON_SIZE - 1.0f, BUTTON_SIZE);
             bool close = GUI.Button(close_btn_rect, "x", GUIStyles.toggleButtonStyle);
             if (close)
                 this.UnShowGUI();
@@ -242,8 +251,10 @@ namespace AtmosphereAutopilot
         //GUILayoutUtility.GetLastRect is supposed to only work properly in repaint events, so we might just be getting lucky here, or the engine's changed but documentation hasn't
         public static float GetNumberTextBoxScrollWheelChange() {
             if (Event.current.type == EventType.ScrollWheel && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
-                return (Event.current.delta.y / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical) +
-                       (Event.current.delta.x / 3.0f * AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal); //Unity seems to not support horizontal scroll wheel :(
+                bool smallIncrement = Input.GetKey(KeyCode.RightControl), //Alt causes the mouse wheel to FoV-zoom, so we don't want to use that
+                     largeIncrement = Input.GetKey(KeyCode.RightShift);
+                return (Event.current.delta.y / 3.0f * (smallIncrement ? 0.1f : largeIncrement ? 1.0f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical)) +
+                       (Event.current.delta.x / 3.0f * (smallIncrement ? 0.05f : largeIncrement ? 0.2f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal)); //Unity seems to not support horizontal scroll wheel :(
             }
             return 0;
         }

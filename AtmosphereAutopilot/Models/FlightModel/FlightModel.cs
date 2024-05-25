@@ -47,7 +47,7 @@ namespace AtmosphereAutopilot
             }
             initialize_lin_tainers();
             //integrator = vessel.GetComponent<FlightIntegrator>();
-            window.width = 240.0f;  // some vector components need love
+            windowPosition.width = 240.0f;  // some vector components need love
         }
 
         //FlightIntegrator integrator;
@@ -221,7 +221,6 @@ namespace AtmosphereAutopilot
 
         protected override void _drawGUI(int id)
         {
-            close_button();
             GUILayout.BeginVertical();
             for (int i = 0; i < 3; i++)
             {
@@ -232,7 +231,6 @@ namespace AtmosphereAutopilot
             }
             AutoGUI.AutoDrawObject(this);
             GUILayout.EndVertical();
-            GUI.DragWindow();
         }
 
         OnlineLinTrainerWindow pitch_lin_wnd, roll_lin_wnd, yaw_lin_wnd,
@@ -242,8 +240,8 @@ namespace AtmosphereAutopilot
 
         void initialize_trainer_windows()
         {
-            Rect lin_wnd_rect = window;
-            lin_wnd_rect.xMin = window.xMin - 190.0f;
+            Rect lin_wnd_rect = windowPosition;
+            lin_wnd_rect.xMin = windowPosition.xMin - 190.0f;
             lin_wnd_rect.xMax = lin_wnd_rect.xMin + 190.0f;
             trainer_windows[0] = pitch_lin_wnd = new OnlineLinTrainerWindow(pitch_trainer, "pitch trainer", 908999, lin_wnd_rect);
             trainer_windows[1] = roll_lin_wnd = new OnlineLinTrainerWindow(roll_trainer, "roll trainer", 908998, lin_wnd_rect);

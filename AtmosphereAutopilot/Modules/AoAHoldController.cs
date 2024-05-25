@@ -175,13 +175,11 @@ namespace AtmosphereAutopilot
 
         protected override void _drawGUI(int id)
         {
-            close_button();
             GUILayout.BeginVertical();
             AutoGUI.AutoDrawObject(this);
             desired_aoa.DisplayLayout(GUIStyles.textBoxStyle);
             thrust_c.SpeedCtrlGUIBlock();
             GUILayout.EndVertical();
-            GUI.DragWindow();
         }
     }
 }
