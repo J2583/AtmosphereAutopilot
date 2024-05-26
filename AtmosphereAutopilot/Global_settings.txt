@@ -150,7 +150,7 @@ Sideslip_controller
 AoA-hold_controller
 {
 	use_keys = True
-	hotkey_desired_aoa_sens = 3
+	hotkey_desired_aoa_sens = 2.5
 	window_x = 54
 	window_y = 243
 }

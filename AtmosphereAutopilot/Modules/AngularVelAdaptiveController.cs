@@ -241,6 +241,8 @@ namespace AtmosphereAutopilot
         [AutoGuiAttr("moder_cutoff_ias", true, "G4")]
         public float moder_cutoff_ias = 10.0f;
 
+        public bool ignore_max_aoa = false;
+
         protected Matrix state_mat = new Matrix(4, 1);
         protected Matrix input_mat = new Matrix(1, 1);
 
@@ -248,7 +250,7 @@ namespace AtmosphereAutopilot
 
         protected override float process_desired_v(float des_v, bool user_input)
         {
-            float rad_max_aoa = max_aoa * dgr2rad;
+            float rad_max_aoa = (ignore_max_aoa ? 179.9f : max_aoa) * dgr2rad;
             res_max_aoa = 100.0f;
             res_min_aoa = -100.0f;
             res_equilibr_v_upper = 0.0f;
@@ -259,11 +261,11 @@ namespace AtmosphereAutopilot
 
 
             // AoA moderation section
-            if (moderate_aoa && !ignore_max_v && imodel.dyn_pressure > moder_cutoff_ias * moder_cutoff_ias)
+            if (moderate_aoa && imodel.dyn_pressure > moder_cutoff_ias * moder_cutoff_ias)
             {
                 moderated = true;
 
-                if (abs_cur_aoa < rad_max_aoa * 1.5f)
+                if (!ignore_max_v && abs_cur_aoa < rad_max_aoa * 1.5f)
                 {
                     // We're in linear regime so we can update our limitations
 

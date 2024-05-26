@@ -218,11 +218,11 @@ namespace AtmosphereAutopilot
 
                         bool limitsDisabled = pvc.ignore_max_v || pvc.ignore_max_g ||
                                               rvc.ignore_max_v || rvc.ignore_max_g ||
-                                              yvc.ignore_max_g ||
+                                              yvc.ignore_max_v || yvc.ignore_max_g ||
                                               !pvc.moderate_aoa;
                         GUILayout.Label("Lims:", limitsDisabled ? GUIStyles.smallLabelStyleLeftRed : GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         if (AutoGUI.CheckForRightClick()) {
-                            pvc.ignore_max_v = pvc.ignore_max_g = rvc.ignore_max_v = rvc.ignore_max_g = yvc.ignore_max_g = !limitsDisabled;
+                            pvc.ignore_max_v = pvc.ignore_max_g = rvc.ignore_max_v = rvc.ignore_max_g = yvc.ignore_max_v = yvc.ignore_max_g = !limitsDisabled;
                             pvc.moderate_aoa = limitsDisabled;
                         }
                         GUILayout.Space(2);
