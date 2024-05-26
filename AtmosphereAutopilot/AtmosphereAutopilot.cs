@@ -42,6 +42,8 @@ namespace AtmosphereAutopilot
 
         // Hotkey manager
         internal AutoHotkey hotkeyManager;
+        
+        public AtmosphereAutopilotSerialized serialized = new AtmosphereAutopilotSerialized();
 
         /// <summary>
         /// Get AtmosphereAutopilot addon class instance
@@ -173,7 +175,7 @@ namespace AtmosphereAutopilot
 
         void serialize_active_modules()
         {
-            AutoSerialization.Serialize(this, "AtmosphereAutopilot", KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
+            AutoSerialization.Serialize(this.serialized, "AtmosphereAutopilotSerialized", KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
                 typeof(GlobalSerializable));
 
             if (ActiveVessel == null)
@@ -264,12 +266,17 @@ namespace AtmosphereAutopilot
 
         #region AppLauncherSection
         
+        public sealed class AtmosphereAutopilotSerialized {
+            [GlobalSerializable("compact_gui")]
+            public bool compact_gui = false;
+        }
+
+        //These values are not serialized, only deserialized, so they can be read from the file during scene changes without being overwritten.
+        //Use AtmosphereAutopilotSerialized for values that should be serialized during scene changes.
+
         [GlobalSerializable("use_neo_gui")]
         public bool use_neo_gui = false;
 
-        [GlobalSerializable("compact_gui")]
-        public bool compact_gui = false;
-        
         [GlobalSerializable("master_switch_key_toggles_gui")]
         public bool master_switch_key_toggles_gui = true;
         
@@ -311,8 +318,11 @@ namespace AtmosphereAutopilot
         // Called when applauncher is ready for population
         void onAppLauncherLoad()
         {
-            // deserialize gui flags
+            // deserialize gui options
             AutoSerialization.Deserialize(this, "AtmosphereAutopilot",
+                KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
+                typeof(GlobalSerializable), null);
+            AutoSerialization.Deserialize(this.serialized, "AtmosphereAutopilotSerialized",
                 KSPUtil.ApplicationRootPath + "GameData/AtmosphereAutopilot/Global_settings.txt",
                 typeof(GlobalSerializable), null);
 

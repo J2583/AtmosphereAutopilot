@@ -136,15 +136,15 @@ namespace AtmosphereAutopilot
         protected override void _drawGUI(int id)
         {
             if (GUI.Button(new Rect(1.0f, 1.0f, WINDOW_TITLE_BAR_HEIGHT - 2.0f, WINDOW_TITLE_BAR_HEIGHT - 1.0f),//windowPosition.width - 16.0f - 15.0f - 2.0f, 1.0f, 15.0f, 16.0f),
-                AtmosphereAutopilot.Instance.compact_gui ? "f" : "c", GUIStyles.toggleButtonStyle))
+                AtmosphereAutopilot.Instance.serialized.compact_gui ? "f" : "c", GUIStyles.toggleButtonStyle))
             {
-                AtmosphereAutopilot.Instance.compact_gui = !AtmosphereAutopilot.Instance.compact_gui;
+                AtmosphereAutopilot.Instance.serialized.compact_gui = !AtmosphereAutopilot.Instance.serialized.compact_gui;
                 windowPosition.height = 0;
                 windowPosition.width = 200;
             }
 
             GUILayout.BeginVertical();
-            if (AtmosphereAutopilot.Instance.compact_gui) {
+            if (AtmosphereAutopilot.Instance.serialized.compact_gui) {
                 const float TEXT_BOX_WIDTH = 34.0f;
 
                 bool fullyInitialized = sfbw != null;
@@ -206,10 +206,10 @@ namespace AtmosphereAutopilot
                     if (aoahc != null) {
                         GUILayout.Label("AoA:", GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         AutoGUI.CheckForClick(() => {
-                            aoahc.desired_aoa.Value = Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                            aoahc.desired_aoa.Value = (Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value));
                         }, () => { aoahc.desired_aoa.Value = 0; });
                         aoahc.desired_aoa.DisplayLayout(GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
-                        aoahc.desired_aoa.Value -= AutoGUI.GetNumberTextBoxScrollWheelChange();
+                        aoahc.desired_aoa -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                         /*if (AutoGUI.CheckForRightClick()) { //See "//Doesn't work because focused text fields block all input" :(
                             aoahc.desired_aoa.Value = Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
                             GUI.FocusControl(null);

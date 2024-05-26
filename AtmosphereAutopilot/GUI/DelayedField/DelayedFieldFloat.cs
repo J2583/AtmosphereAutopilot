@@ -19,6 +19,7 @@ along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace AtmosphereAutopilot
@@ -70,6 +71,23 @@ namespace AtmosphereAutopilot
             changed = false;
             input_str = val.ToString(format);
             format_str = format;
+        }
+        
+        public static DelayedFieldFloat operator +(DelayedFieldFloat lhs, float rhs) {
+            if (rhs == 0) return lhs;
+
+            if (lhs.changed && float.TryParse(lhs.input_str, out float v)) {
+                lhs.changed = false;
+                lhs.time = 0.0f;
+                lhs.val = v;
+            }
+            
+            lhs.val += rhs;
+            lhs.input_str = lhs.val.ToString(lhs.format_str);
+            return lhs;
+        }
+        public static DelayedFieldFloat operator -(DelayedFieldFloat lhs, float rhs) {
+            return lhs + (-rhs);
         }
 
         public static implicit operator float(DelayedFieldFloat f)
