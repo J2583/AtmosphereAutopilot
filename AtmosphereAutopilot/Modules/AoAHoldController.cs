@@ -111,7 +111,7 @@ namespace AtmosphereAutopilot
                 ControlUtils.neutralize_user_input(cntrl, PITCH);
 
             aoa_c.user_controlled = false;
-            aoa_c.IgnoreMaxAoA = desired_aoa.Value > aoa_c.MaxAoA;
+            aoa_c.IgnoreMaxAoA = Mathf.Abs(desired_aoa.Value) > aoa_c.MaxAoA;
             aoa_c.ApplyControl(cntrl, desired_aoa.Value * dgr2rad, 0.0f);
             side_c.user_controlled = true;
             side_c.ApplyControl(cntrl, 0.0f, 0.0f);
