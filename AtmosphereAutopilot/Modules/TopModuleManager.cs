@@ -55,7 +55,7 @@ namespace AtmosphereAutopilot
 
         private float initialLevelerSnapAngle = 3.0f;
 
-        private static readonly float[] aoaHoldPresets = new float[] { 0, 1.0f, 2.5f, 5.0f, 15.0f, 25.0f, 40.0f };
+        private static readonly float[] aoaHoldPresets = new float[] { -40.0f, -25.0f, -15.0f, -5.0f, -2.5f, -1.0f, 0, 1.0f, 2.5f, 5.0f, 15.0f, 25.0f, 40.0f };
 
         public void create_context()
         {
@@ -206,8 +206,16 @@ namespace AtmosphereAutopilot
                     if (aoahc != null) {
                         GUILayout.Label("AoA:", GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         AutoGUI.CheckForClick(() => {
-                            aoahc.desired_aoa.Value = (Input.GetKey(KeyCode.LeftAlt) ? GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value) : GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value));
-                        }, () => { aoahc.desired_aoa.Value = 0; });
+                            if (Input.GetKey(KeyCode.LeftAlt)) aoahc.desired_aoa.Value = GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                            else aoahc.desired_aoa.InvertValue();
+                        }, () => {
+                            if (Input.GetKey(KeyCode.LeftAlt)) aoahc.desired_aoa.Value = GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                            else aoahc.desired_aoa.Value = 0;
+                        });
+                        var aoaLabelScroll = AutoGUI.GetNumberTextBoxScrollWheelChange();
+                        if (aoaLabelScroll > 0) aoahc.desired_aoa.Value = GetPreviousPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+                        else if (aoaLabelScroll < 0) aoahc.desired_aoa.Value = GetNextPreset(aoaHoldPresets, aoahc.desired_aoa.Value);
+
                         aoahc.desired_aoa.DisplayLayout(GUIStyles.largeTextBoxStyle, GUILayout.Width(TEXT_BOX_WIDTH), GUILayout.ExpandWidth(false));
                         aoahc.desired_aoa -= AutoGUI.GetNumberTextBoxScrollWheelChange();
                         /*if (AutoGUI.CheckForRightClick()) { //See "//Doesn't work because focused text fields block all input" :(
@@ -222,7 +230,9 @@ namespace AtmosphereAutopilot
                                               !pvc.moderate_aoa;
                         GUILayout.Label("Lims:", limitsDisabled ? GUIStyles.smallLabelStyleLeftRed : GUIStyles.smallLabelStyleLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
                         if (AutoGUI.CheckForRightClick()) {
-                            pvc.ignore_max_v = pvc.ignore_max_g = rvc.ignore_max_v = rvc.ignore_max_g = yvc.ignore_max_v = yvc.ignore_max_g = !limitsDisabled;
+                            pvc.ignore_max_v = pvc.ignore_max_g =
+                                rvc.ignore_max_v = rvc.ignore_max_g =
+                                yvc.ignore_max_v = yvc.ignore_max_g = !limitsDisabled;
                             pvc.moderate_aoa = limitsDisabled;
                         }
                         GUILayout.Space(2);
@@ -355,14 +365,16 @@ namespace AtmosphereAutopilot
             for (int i = presets.Length - 1; i >= 0; i--) {
                 if (presets[i] < currentValue) return presets[i];
             }
-            return presets[presets.Length - 1];
+            //return presets[presets.Length - 1]; //Loops around
+            return currentValue;
         }
 
         private float GetNextPreset(float[] presets, float currentValue) {
             foreach (float preset in presets) {
                 if (preset > currentValue) return preset;
             }
-            return presets[0];
+            //return presets[0]; //Loops around
+            return currentValue;
         }
 
         public override void Serialize()

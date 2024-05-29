@@ -57,7 +57,7 @@ Top row:
 * "Lvl" - Snap Wings to Level - Right-click to toggle between a larger snap angle.
 
 Second row:
-* "AoA" - Target angle for the AoA-hold mode. Right-click on the label to set it to 0. Left-click to cycle between presets (0/1/2.5/5/15/40 degrees), alt+left-click to cycle in reverse.
+* "AoA" - Target angle for the AoA-hold mode. Right-click on the label to set it to 0. Left-click invert the current angle. Use the scroll wheel or alt+left/right click to cycle between presets (0/1/2.5/5/15/40 degrees).
 * "Lims" - Limits for pitch/roll rate and angle-of-attack. Right-click to toggle all limits, or right-click on an individual limit label to only toggle that one.
 
 Use the scroll wheel while hovering over a text field to change its value. Hold right-control or right-alt to use smaller or larger increments.

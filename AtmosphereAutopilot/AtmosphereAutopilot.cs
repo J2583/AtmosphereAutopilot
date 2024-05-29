@@ -549,13 +549,19 @@ namespace AtmosphereAutopilot
         }
 
         #endregion
+        
+        const string lockName = "AircraftAutopilotCameraLock";
+
+        bool shouldUnlockCamera = true;
 
         void Update()
         {
-            if (!HighLogic.LoadedSceneIsFlight)
+            if (shouldUnlockCamera) InputLockManager.RemoveControlLock(lockName);
+            else shouldUnlockCamera = true;
+
+            if (!HighLogic.LoadedSceneIsFlight || ActiveVessel == null)
                 return;
-            if (ActiveVessel == null)
-                return;
+
             if (autopilot_module_lists.ContainsKey(ActiveVessel))
             {
                 var module_list = autopilot_module_lists[ActiveVessel].Values.ToList();
@@ -565,6 +571,20 @@ namespace AtmosphereAutopilot
             }
 
             //if (Input.GetKeyDown(KeyCode.Escape)) GUI.FocusControl(null); //Doesn't work because focused text fields block all input, and there seems to be no way around that with immediate-mode GUI other than using Input.eatKeyPressOnTextFieldFocus, which would probably cause all text-field input to also be sent tothe main game
+        }
+
+        public void LockCameraControlsOnHover() {
+            if (Event.current.type == EventType.Repaint && shouldUnlockCamera && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                InputLockManager.SetControlLock(ControlTypes.CAMERACONTROLS, lockName);
+                shouldUnlockCamera = false;
+            }
+        }
+
+        public void LockCameraControls() {
+            if (shouldUnlockCamera) {
+                InputLockManager.SetControlLock(ControlTypes.CAMERACONTROLS, lockName);
+                shouldUnlockCamera = false;
+            }
         }
     }
 }

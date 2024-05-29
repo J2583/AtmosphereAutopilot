@@ -76,12 +76,7 @@ namespace AtmosphereAutopilot
         public static DelayedFieldFloat operator +(DelayedFieldFloat lhs, float rhs) {
             if (rhs == 0) return lhs;
 
-            if (lhs.changed && float.TryParse(lhs.input_str, out float v)) {
-                lhs.changed = false;
-                lhs.time = 0.0f;
-                lhs.val = v;
-            }
-            
+            lhs.ParseImmediately();
             lhs.val += rhs;
             lhs.input_str = lhs.val.ToString(lhs.format_str);
             return lhs;
@@ -164,6 +159,21 @@ namespace AtmosphereAutopilot
                 float.TryParse(val_str, out new_val);
                 return new DelayedFieldFloat(new_val, format_str);
             }
+        }
+
+        //Doesn't update the string, do that yourself after
+        private void ParseImmediately() {
+            if (changed && float.TryParse(input_str, out float v)) {
+                changed = false;
+                time = 0.0f;
+                val = v;
+            }
+        }
+
+        public void InvertValue() {
+            ParseImmediately();
+            val = -val;
+            input_str = val.ToString(format_str);
         }
     }
 }

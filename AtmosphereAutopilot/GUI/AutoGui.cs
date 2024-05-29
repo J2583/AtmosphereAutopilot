@@ -250,25 +250,35 @@ namespace AtmosphereAutopilot
         
         //GUILayoutUtility.GetLastRect is supposed to only work properly in repaint events, so we might just be getting lucky here, or the engine's changed but documentation hasn't
         public static float GetNumberTextBoxScrollWheelChange() {
-            if (Event.current.type == EventType.ScrollWheel && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
-                bool smallIncrement = Input.GetKey(KeyCode.RightControl), //Alt causes the mouse wheel to FoV-zoom, so we don't want to use that
-                     largeIncrement = Input.GetKey(KeyCode.RightShift);
-                return (Event.current.delta.y / 3.0f * (smallIncrement ? 0.1f : largeIncrement ? 1.0f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical)) +
-                       (Event.current.delta.x / 3.0f * (smallIncrement ? 0.05f : largeIncrement ? 0.2f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal)); //Unity seems to not support horizontal scroll wheel :(
+            if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                if (Event.current.type == EventType.Repaint) AtmosphereAutopilot.Instance.LockCameraControls();
+                else if (Event.current.type == EventType.ScrollWheel) {
+                    bool smallIncrement = Input.GetKey(KeyCode.RightControl), //Alt causes the mouse wheel to FoV-zoom, so we don't want to use that
+                         largeIncrement = Input.GetKey(KeyCode.RightShift);
+                    return (Event.current.delta.y / 3.0f * (smallIncrement ? 0.1f : largeIncrement ? 1.0f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_vertical)) +
+                           (Event.current.delta.x / 3.0f * (smallIncrement ? 0.05f : largeIncrement ? 0.2f : AtmosphereAutopilot.Instance.scroll_wheel_number_field_increment_horizontal)); //Unity seems to not support horizontal scroll wheel :(
+                }
             }
             return 0;
         }
         
         //See GetNumberTextBoxScrollWheelChange for a potential bug with this
         public static bool CheckForRightClick() {
-            return Event.current.type == EventType.MouseDown && Event.current.button == 1 && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
+            if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                if (Event.current.type == EventType.Repaint) AtmosphereAutopilot.Instance.LockCameraControls();
+                else return Event.current.type == EventType.MouseDown && Event.current.button == 1;
+            }
+            return false;
         }
         
         //See GetNumberTextBoxScrollWheelChange for a potential bug with this
         public static void CheckForClick(Callback onLeftClick, Callback onRightClick) {
-            if (Event.current.type == EventType.MouseDown && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
-                if (Event.current.button == 0) onLeftClick();
-                else if (Event.current.button == 1) onRightClick();
+            if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) {
+                if (Event.current.type == EventType.Repaint) AtmosphereAutopilot.Instance.LockCameraControls();
+                else if (Event.current.type == EventType.MouseDown) {
+                    if (Event.current.button == 0) onLeftClick();
+                    else if (Event.current.button == 1) onRightClick();
+                }
             }
         }
 
